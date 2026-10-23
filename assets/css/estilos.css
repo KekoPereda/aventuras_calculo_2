@@ -1,0 +1,569 @@
+:root {
+    --app-width: 100vw;
+    --app-height: 100vh;
+    --char: 160px;
+    --ground-h: 70px;
+    --scene-sky: #7cc6f2;
+    --scene-cloud: rgba(255, 255, 255, .85);
+    --scene-mid: #4e9a5b;
+    --scene-ground: #6b4a2b;
+    --scene-grass: #3f9d3a;
+    --blob: #e5484d;
+}
+
+[data-stage="prairie"] {
+    --scene-sky: #7cc6f2;
+    --scene-mid: #4e9a5b;
+    --scene-ground: #6b4a2b;
+    --scene-grass: #3f9d3a;
+    --blob: #e5484d;
+}
+
+[data-stage="forest"] {
+    --scene-sky: #8fd0c0;
+    --scene-mid: #2f7d4f;
+    --scene-ground: #4f3a22;
+    --scene-grass: #2a7a38;
+    --blob: #8e5bd9;
+}
+
+[data-stage="desert"] {
+    --scene-sky: #f4c98a;
+    --scene-mid: #d49a56;
+    --scene-ground: #b5803e;
+    --scene-grass: #e3b565;
+    --blob: #3b82c4;
+}
+
+[data-stage="mountain"] {
+    --scene-sky: #9db4d8;
+    --scene-mid: #6d7f9c;
+    --scene-ground: #4a4f5c;
+    --scene-grass: #9aa5b8;
+    --blob: #f08a24;
+}
+
+[data-stage="castle"] {
+    --scene-sky: #2a2142;
+    --scene-mid: #3d2c5c;
+    --scene-ground: #241a33;
+    --scene-grass: #5a3f86;
+    --blob: #38c172;
+    --scene-cloud: rgba(180, 150, 255, .25);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #0d0f14;
+    color: #f2f4f8;
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+#game {
+    width: var(--app-width);
+    height: var(--app-height);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
+
+/* Escenario */
+.game-stage {
+    position: relative;
+    flex: 1 1 60%;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--scene-sky);
+}
+
+.parallax {
+    position: absolute;
+    left: 0;
+    right: 0;
+    background-repeat: repeat-x;
+}
+
+.parallax-sky {
+    inset: 0;
+    background: linear-gradient(var(--scene-sky), color-mix(in srgb, var(--scene-sky) 70%, #fff));
+}
+
+.parallax-cloud {
+    top: 8%;
+    height: 30%;
+    background-image:
+        radial-gradient(ellipse 60px 22px at 60px 40px, var(--scene-cloud) 98%, transparent),
+        radial-gradient(ellipse 80px 26px at 280px 70px, var(--scene-cloud) 98%, transparent),
+        radial-gradient(ellipse 50px 18px at 480px 30px, var(--scene-cloud) 98%, transparent);
+    background-size: 620px 100%;
+}
+
+.parallax-mid {
+    bottom: var(--ground-h);
+    height: 38%;
+    background-image:
+        radial-gradient(ellipse 160px 100% at 160px 100%, var(--scene-mid) 98%, transparent),
+        radial-gradient(ellipse 120px 70% at 420px 100%, color-mix(in srgb, var(--scene-mid) 80%, #000) 98%, transparent);
+    background-size: 560px 100%;
+}
+
+.parallax-ground {
+    bottom: 0;
+    height: var(--ground-h);
+    background:
+        linear-gradient(var(--scene-grass) 0 14px, transparent 14px),
+        repeating-linear-gradient(90deg, rgba(0, 0, 0, .14) 0 3px, transparent 3px 60px),
+        var(--scene-ground);
+    background-repeat: repeat-x;
+}
+
+/* HUD */
+.hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: linear-gradient(rgba(0, 0, 0, .55), transparent);
+    z-index: 5;
+    font-size: 14px;
+}
+
+.hud-stage span {
+    font-weight: 700;
+    display: block;
+}
+
+.hud-stage small {
+    opacity: .8;
+}
+
+.hud-timer {
+    font-size: 20px;
+    font-weight: 800;
+    text-align: center;
+    min-width: 90px;
+}
+
+.timer-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, .25);
+    overflow: hidden;
+}
+
+.timer-bar i {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: #6be675;
+    transition: width .1s linear;
+}
+
+.timer-bar i.low {
+    background: #ff6b6b;
+}
+
+.btn-small {
+    background: rgba(0, 0, 0, .5);
+    border: 1px solid rgba(255, 255, 255, .4);
+    color: #fff;
+    border-radius: 8px;
+    width: 38px;
+    height: 34px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.card {
+    position: absolute;
+    top: 56px;
+    z-index: 5;
+    padding: 6px 10px;
+    background: rgba(10, 14, 22, .7);
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 10px;
+    width: min(200px, 38vw);
+    font-size: 13px;
+}
+
+.card-player {
+    left: 12px;
+}
+
+.card-enemy {
+    right: 12px;
+}
+
+.hp {
+    height: 10px;
+    border-radius: 5px;
+    background: rgba(255, 255, 255, .18);
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.hp i {
+    display: block;
+    height: 100%;
+    width: 100%;
+    background: #3b9bff;
+    transition: width .3s;
+}
+
+.hp-enemy i {
+    background: #ff4d4d;
+}
+
+/* Personajes */
+.character {
+    position: absolute;
+    width: var(--char);
+    height: var(--char);
+    border: 0;
+    background: transparent;
+    pointer-events: none;
+    z-index: 3;
+}
+
+.player {
+    left: var(--player-x, 18%);
+    bottom: calc(var(--ground-h) - 12px);
+    transform: translateY(calc(var(--jump, 0) * -1px)) scaleY(var(--squat, 1));
+    transform-origin: 50% 100%;
+    will-change: transform;
+}
+
+.player.blink {
+    animation: blink .18s steps(2) infinite;
+}
+
+.enemy {
+    right: 4%;
+    bottom: calc(var(--ground-h) - 12px);
+}
+
+.enemy.enter {
+    animation: bossIn .9s ease-out;
+}
+
+.enemy.hit {
+    animation: shake .3s;
+}
+
+@keyframes bossIn {
+    from {
+        transform: translateX(120%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes shake {
+    25% {
+        transform: translateX(-8px);
+    }
+
+    75% {
+        transform: translateX(8px);
+    }
+}
+
+@keyframes blink {
+    50% {
+        opacity: .25;
+    }
+}
+
+/* Enemigos círculo (provisionales) */
+.track {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+}
+
+.blob {
+    position: absolute;
+    bottom: var(--ground-h);
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--blob);
+    box-shadow: inset -5px -5px 0 rgba(0, 0, 0, .2);
+}
+
+.blob::before,
+.blob::after {
+    content: "";
+    position: absolute;
+    top: 9px;
+    width: 8px;
+    height: 10px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: inset 2px 0 0 #111;
+}
+
+.blob::before {
+    left: 7px;
+}
+
+.blob::after {
+    right: 7px;
+}
+
+.blob.squashed {
+    height: 12px;
+    transform: scaleX(1.3);
+    opacity: 0;
+    transition: opacity .4s .1s;
+}
+
+.blob.squashed::before,
+.blob.squashed::after {
+    display: none;
+}
+
+.platform-hint {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(var(--ground-h) + 150px);
+    text-align: center;
+    margin: 0;
+    font-size: 13px;
+    text-shadow: 0 1px 3px #000;
+    opacity: .9;
+    z-index: 4;
+    pointer-events: none;
+}
+
+kbd {
+    background: rgba(0, 0, 0, .5);
+    border-radius: 4px;
+    padding: 1px 6px;
+    border: 1px solid rgba(255, 255, 255, .4);
+}
+
+/* Panel de interacción */
+.interface-panel {
+    flex: 0 0 auto;
+    min-height: 36%;
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
+    background: #141a26;
+    border-top: 3px solid #3fae5a;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.question {
+    font-size: clamp(26px, 6vw, 44px);
+    font-weight: 800;
+    margin: 0;
+    text-align: center;
+}
+
+.answers {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.answers button {
+    min-width: 110px;
+    padding: 14px 20px;
+    font-size: clamp(20px, 4vw, 28px);
+    font-weight: 700;
+    color: #fff;
+    background: #1f6f3a;
+    border: 2px solid #4ed07a;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform .1s, background .2s;
+}
+
+.answers button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    background: #278a49;
+}
+
+.answers button:disabled {
+    opacity: .55;
+    cursor: default;
+}
+
+.answers button.ok {
+    background: #1c9b4a;
+}
+
+.answers button.bad {
+    background: #a02a2a;
+    border-color: #ff7b7b;
+}
+
+.platform-info {
+    margin: 0;
+    opacity: .85;
+    text-align: center;
+}
+
+.feedback {
+    min-height: 1.4em;
+    margin: 0;
+    font-weight: 700;
+    text-align: center;
+}
+
+.feedback.good {
+    color: #6be675;
+}
+
+.feedback.bad {
+    color: #ff7b7b;
+}
+
+/* Modal */
+.modal {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(5, 8, 14, .75);
+    padding: 16px;
+}
+
+.modal.open {
+    display: flex;
+}
+
+.modal-box {
+    background: #1b2233;
+    border: 1px solid rgba(255, 255, 255, .2);
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 420px;
+    width: 100%;
+    text-align: center;
+}
+
+.modal-box h2 {
+    margin: 0 0 8px;
+}
+
+.modal-box p {
+    margin: 0 0 18px;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    background: #2fae5a;
+    color: #fff;
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 22px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-ghost {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, .4);
+}
+
+@media (max-width: 600px) {
+    :root {
+        --char: 120px;
+        --ground-h: 56px;
+    }
+
+    .hud-score {
+        display: none;
+    }
+
+    .platform-hint {
+        bottom: calc(var(--ground-h) + 115px);
+    }
+}
+
+.blob.pop {
+    animation: pop .35s ease-out;
+}
+
+@keyframes pop {
+    from {
+        transform: scale(0);
+    }
+
+    to {
+        transform: scale(1);
+    }
+}
+
+/* Mensaje de etapa completada: cae desde arriba mientras el héroe sale caminando */
+.modal.drop {
+    align-items: flex-start;
+    background: transparent;
+    pointer-events: none;
+}
+
+.modal.drop .modal-box {
+    pointer-events: auto;
+    margin-top: 100px;
+    animation: dropIn .9s cubic-bezier(.3, 1.4, .5, 1);
+}
+
+@keyframes dropIn {
+    from {
+        transform: translateY(-130%);
+    }
+
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Minis que caminan hacia el héroe: pequeño rebote al avanzar */
+.blob.walker:not(.squashed) {
+    animation: pop .35s ease-out, hop .5s ease-in-out .35s infinite;
+}
+
+@keyframes hop {
+    50% {
+        transform: translateY(-6px);
+    }
+}

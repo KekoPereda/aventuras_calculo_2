@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Aventuras del Cálculo</title>
+  <link rel="stylesheet" href="assets/css/estilos.css">
+</head>
+<body>
+  <main id="game" data-stage="prairie" data-mode="platform">
+    <section class="game-stage" id="stage" aria-label="Escenario del juego">
+      <div class="parallax parallax-sky"></div>
+      <div class="parallax parallax-cloud" id="layerCloud"></div>
+      <div class="parallax parallax-mid" id="layerMid"></div>
+      <div class="parallax parallax-ground" id="layerGround"></div>
+
+      <header class="hud">
+        <div class="hud-stage">
+          <span id="stageName">Etapa</span>
+          <small id="stageProgress"></small>
+        </div>
+        <div class="hud-timer" id="timerBox" hidden>
+          <span id="timerText">10</span>s
+          <div class="timer-bar"><i id="timerFill"></i></div>
+        </div>
+        <div class="hud-score">Minis derrotados: <b id="stompCount">0</b></div>
+        <button id="pauseBtn" class="btn-small" type="button" aria-label="Pausar">⏸</button>
+      </header>
+
+      <div class="card card-player">
+        <strong>Héroe</strong>
+        <div class="hp"><i id="playerHp"></i></div>
+      </div>
+      <div class="card card-enemy" id="enemyCard" hidden>
+        <strong id="enemyName">Jefe</strong>
+        <div class="hp hp-enemy"><i id="enemyHp"></i></div>
+      </div>
+
+      <div class="track" id="track"></div>
+      <iframe id="player" class="character player" src="assets/caracter/player/player.html" title="Jugador" scrolling="no"></iframe>
+      <iframe id="enemy" class="character enemy" src="assets/caracter/enemys/enemy_1.html" title="Jefe enemigo" scrolling="no" hidden></iframe>
+
+      <p class="platform-hint" id="platformHint"><kbd>A</kbd> atrás · <kbd>D</kbd> adelante · <kbd>W</kbd> saltar · <kbd>S</kbd> agacharse · <kbd>Ctrl</kbd> golpear — salta sobre los minis</p>
+    </section>
+
+    <section class="interface-panel" id="panel">
+      <div id="classicMode" hidden>
+        <p class="question" id="question" aria-live="polite"></p>
+        <div class="answers" id="answers"></div>
+      </div>
+      <div id="puzzleMode" hidden>
+        <p class="question" id="puzzleGoal" aria-live="polite"></p>
+        <div class="answers" id="puzzleOptions"></div>
+      </div>
+      <p id="platformInfo" class="platform-info">¡Avanza, salta a los enemigos y llega hasta el jefe de la etapa!</p>
+      <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+    </section>
+
+    <div id="endModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-box">
+        <h2 id="modalTitle">Aventuras del Cálculo</h2>
+        <p id="modalText"></p>
+        <div class="modal-actions">
+          <button id="modalPrimary" type="button" class="btn"></button>
+          <button id="modalSecondary" type="button" class="btn btn-ghost" hidden>Reiniciar juego</button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
