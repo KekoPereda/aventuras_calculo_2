@@ -131,6 +131,22 @@ body {
     background-repeat: repeat-x;
 }
 
+/* Suelo con escena de Animate: app.js crea los iframes, los escala y desplaza la fila */
+.parallax-ground.tiled {
+    top: 0;
+    height: auto;
+    background: none;
+    will-change: transform;
+}
+
+.ground-tile {
+    position: absolute;
+    bottom: 0;
+    border: 0;
+    background: transparent;
+    pointer-events: none;
+}
+
 /* HUD */
 .hud {
     position: absolute;
@@ -246,7 +262,7 @@ body {
 
 .player {
     left: var(--player-x, 18%);
-    bottom: calc(var(--ground-h) - 12px);
+    bottom: calc(var(--ground-h) - var(--feet, 12px));
     transform: translateY(calc(var(--jump, 0) * -1px)) scaleY(var(--squat, 1));
     transform-origin: 50% 100%;
     will-change: transform;
@@ -258,7 +274,7 @@ body {
 
 .enemy {
     right: 4%;
-    bottom: calc(var(--ground-h) - 12px);
+    bottom: calc(var(--ground-h) - var(--feet, 12px));
 }
 
 .enemy.enter {
@@ -565,5 +581,100 @@ kbd {
 @keyframes hop {
     50% {
         transform: translateY(-6px);
+    }
+}
+/* ============ Controles táctiles (móvil) ============ */
+.hint-touch,
+.touch-controls {
+    display: none;
+}
+
+[data-input="touch"] .hint-keys {
+    display: none;
+}
+
+[data-input="touch"] .hint-touch {
+    display: inline;
+}
+
+[data-input="touch"] .touch-controls {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 10px;
+    padding: 0 max(12px, env(safe-area-inset-left)) 0 max(12px, env(safe-area-inset-right));
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    z-index: 6;
+    pointer-events: none;
+}
+
+.touch-pad {
+    display: flex;
+    gap: 10px;
+    pointer-events: auto;
+}
+
+.touch-btn {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, .55);
+    background: rgba(0, 0, 0, .38);
+    color: #fff;
+    font-size: 24px;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+}
+
+.touch-btn.pressed {
+    background: rgba(255, 255, 255, .35);
+    transform: scale(.94);
+}
+
+.touch-jump {
+    width: 70px;
+    height: 70px;
+    font-size: 30px;
+    background: rgba(63, 174, 90, .55);
+}
+
+.touch-attack {
+    background: rgba(229, 72, 77, .5);
+}
+
+/* Movimiento solo en modo plataforma; saltar/golpear también en el duelo */
+#game:not([data-mode="platform"]) .touch-move {
+    visibility: hidden;
+}
+
+#game:not([data-mode="platform"]):not([data-mode="boss-intro"]):not([data-mode="combat"]) .touch-actions {
+    visibility: hidden;
+}
+
+[data-input="touch"] .platform-hint {
+    bottom: calc(var(--ground-h) + 130px);
+    padding: 0 16px;
+}
+
+@media (max-width: 600px) {
+    .touch-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+
+    .touch-jump {
+        width: 60px;
+        height: 60px;
+        font-size: 26px;
     }
 }

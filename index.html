@@ -40,7 +40,23 @@
       <iframe id="player" class="character player" src="assets/caracter/player/player.html" title="Jugador" scrolling="no"></iframe>
       <iframe id="enemy" class="character enemy" src="assets/caracter/enemys/enemy_1.html" title="Jefe enemigo" scrolling="no" hidden></iframe>
 
-      <p class="platform-hint" id="platformHint"><kbd>A</kbd> atrás · <kbd>D</kbd> adelante · <kbd>W</kbd> saltar · <kbd>S</kbd> agacharse · <kbd>Ctrl</kbd> golpear — salta sobre los minis</p>
+      <p class="platform-hint" id="platformHint">
+        <span class="hint-keys"><kbd>A</kbd> atrás · <kbd>D</kbd> adelante · <kbd>W</kbd> saltar · <kbd>S</kbd> agacharse · <kbd>Ctrl</kbd> golpear — salta sobre los minis</span>
+        <span class="hint-touch">Usa <b>◀ ▶</b> para moverte, <b>▼</b> para agacharte, <b>⤒</b> para saltar y <b>✊</b> para golpear — salta sobre los minis</span>
+      </p>
+
+      <!-- Controles táctiles: solo visibles en pantallas táctiles / móviles -->
+      <div class="touch-controls" id="touchControls" aria-hidden="true">
+        <div class="touch-pad touch-move">
+          <button type="button" class="touch-btn" data-key="left" aria-label="Atrás">◀</button>
+          <button type="button" class="touch-btn" data-key="crouch" aria-label="Agacharse">▼</button>
+          <button type="button" class="touch-btn" data-key="right" aria-label="Adelante">▶</button>
+        </div>
+        <div class="touch-pad touch-actions">
+          <button type="button" class="touch-btn touch-attack" data-action="attack" aria-label="Golpear">✊</button>
+          <button type="button" class="touch-btn touch-jump" data-action="jump" aria-label="Saltar">⤒</button>
+        </div>
+      </div>
     </section>
 
     <section class="interface-panel" id="panel">

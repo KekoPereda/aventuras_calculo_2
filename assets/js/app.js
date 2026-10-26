@@ -31,6 +31,9 @@ const STAGES = [
     {
         id: 'addition-basic', summon: { chance: 1, count: 2 }, type: 'classic', name: 'Pradera de las Sumas', theme: 'prairie',
         enemyName: 'Slime Sumón', enemyHp: 200, time: 10, damage: 25, track: 2200, blobs: 6,
+        // Suelo exportado de Animate (escena 1080×500). walkY: altura (en px de la escena) donde pisan los personajes.
+        // cycles: largo del recorrido medido en repeticiones del suelo (reemplaza a track). 3 = prueba del ciclo.
+        ground: { src: 'assets/bg/e1_bg1.html', width: 1080, height: 500, walkY: 412 }, cycles: 3,
         range: { aMin: 1, aMax: 9, bMin: 1, bMax: 9 },
         winText: '¡Derrotaste al Slime Sumón!', nextOnWin: 'addition-up-to-50', nextOnLose: 'addition-basic'
     },
@@ -181,6 +184,7 @@ function startStage(stage) {
     elements.player.style.transition = ''; elements.player.style.left = '';
     elements.player.style.setProperty('--jump', 0);
     feedback('');
+    buildGround();
     buildTrack();
     setMode('enter');
     updateHud();
@@ -211,6 +215,54 @@ function walkIn() {
         keepWalking(false); playerAnim('stand');
         setMode('platform');
     }, secs * 1000);
+}
+
+/* ============ Suelo de Animate repetido en ciclo ============ */
+// El suelo es una fila de iframes con la misma escena, escalada a la altura del escenario.
+// La fila se desplaza camera % ancho, así que da la ilusión de un suelo infinito.
+const FEET_RATIO = 3.5 / 160; // los pies del héroe quedan 3.5px sobre el borde inferior de su canvas de 160px
+GAME.groundStep = 0;          // ancho (px enteros) de una repetición; 0 si la etapa usa el suelo CSS
+
+function buildGround() {
+    const layer = elements.layerGround, g = GAME.stage.ground;
+    layer.style.transform = ''; layer.style.backgroundPositionX = '';
+    if (!g) {
+        layer.innerHTML = ''; delete layer.dataset.src; layer.classList.remove('tiled');
+        GAME.groundStep = 0;
+        elements.game.style.removeProperty('--ground-h'); elements.game.style.removeProperty('--feet');
+        return;
+    }
+    if (layer.dataset.src !== g.src) { layer.innerHTML = ''; layer.dataset.src = g.src; } // misma escena: no recargar
+    layer.classList.add('tiled');
+    fitGround();
+}
+
+function fitGround() {
+    const g = GAME.stage.ground, layer = elements.layerGround;
+    const H = elements.stage.clientHeight, W = elements.stage.clientWidth;
+    if (!g || !H || !layer.classList.contains('tiled')) return;
+    const s = H / g.height;
+    GAME.groundStep = Math.floor(g.width * s); // paso entero: evita costuras entre repeticiones
+    const need = Math.ceil(W / GAME.groundStep) + 1;
+    while (layer.children.length < need) {
+        const f = document.createElement('iframe');
+        f.className = 'ground-tile'; f.src = g.src; f.title = ''; f.tabIndex = -1;
+        f.setAttribute('aria-hidden', 'true'); f.setAttribute('scrolling', 'no');
+        layer.appendChild(f);
+    }
+    [...layer.children].forEach((f, i) => {
+        f.style.left = i * GAME.groundStep + 'px';
+        f.style.width = Math.ceil(g.width * s) + 'px';
+        f.style.height = H + 'px';
+    });
+    elements.game.style.setProperty('--ground-h', (g.height - g.walkY) * s + 'px');
+    elements.game.style.setProperty('--feet', `calc(var(--char) * ${FEET_RATIO})`);
+}
+
+// Largo total del recorrido: en ciclos de suelo si la etapa los define, si no en px (track).
+function trackLength(W) {
+    const s = GAME.stage;
+    return s.cycles && GAME.groundStep ? s.cycles * GAME.groundStep + W * PLATFORM.bossXRatio : s.track;
 }
 
 function buildTrack() {
@@ -263,7 +315,8 @@ function platformLoop(now) {
     const scale = parseFloat(getComputedStyle(elements.game).getPropertyValue('--char')) / 160 || 1;
 
     // Avance de cámara (se detiene al llegar al jefe)
-    const stopAt = GAME.stage.track - W * PLATFORM.bossXRatio;
+    const track = trackLength(W);
+    const stopAt = track - W * PLATFORM.bossXRatio;
     if (GAME.mode === 'platform') {
         const dir = (GAME.keys.right ? 1 : 0) - (GAME.keys.left ? 1 : 0);
         const prev = GAME.camera;
@@ -273,7 +326,7 @@ function platformLoop(now) {
             GAME.moving = moving; keepWalking(moving);
             if (GAME.y === 0 && performance.now() >= GAME.attackUntil) playerAnim(moving ? 'walk' : 'stand');
         }
-        if (GAME.camera >= GAME.nextSpawn && GAME.camera < GAME.stage.track - 1000) {
+        if (GAME.camera >= GAME.nextSpawn && GAME.camera < track - 1000) {
             spawnBlob(W);
             GAME.nextSpawn = GAME.camera + rand(300, 650);
         }
@@ -300,7 +353,8 @@ function platformLoop(now) {
     // Parallax
     elements.layerCloud.style.backgroundPositionX = (-GAME.camera * 0.2) + 'px';
     elements.layerMid.style.backgroundPositionX = (-GAME.camera * 0.5) + 'px';
-    elements.layerGround.style.backgroundPositionX = (-GAME.camera) + 'px';
+    if (GAME.groundStep) elements.layerGround.style.transform = `translateX(${-(GAME.camera % GAME.groundStep)}px)`;
+    else elements.layerGround.style.backgroundPositionX = (-GAME.camera) + 'px';
 
     // Círculos enemigos
     const px = W * PLATFORM.playerXRatio + (160 * scale) / 2;
@@ -679,6 +733,9 @@ function syncViewportMetrics() {
 }
 window.addEventListener('resize', syncViewportMetrics);
 syncViewportMetrics();
+// El alto del escenario cambia con la ventana y con el panel inferior: reescalar el suelo.
+new ResizeObserver(fitGround).observe(elements.stage);
+buildGround();
 
 const KEYMAP = { KeyA: 'left', ArrowLeft: 'left', KeyD: 'right', ArrowRight: 'right', KeyS: 'crouch', ArrowDown: 'crouch' };
 document.addEventListener('keydown', (e) => {
@@ -693,6 +750,33 @@ document.addEventListener('keydown', (e) => {
 });
 document.addEventListener('keyup', (e) => { if (KEYMAP[e.code]) GAME.keys[KEYMAP[e.code]] = false; });
 window.addEventListener('blur', () => { GAME.keys.left = GAME.keys.right = GAME.keys.crouch = false; });
+
+/* ============ Controles táctiles (móvil) ============ */
+// Se detecta si el dispositivo es táctil o de pantalla pequeña para mostrar los botones y la instrucción adecuada.
+const TOUCH_QUERY = window.matchMedia('(pointer: coarse), (hover: none), (max-width: 900px)');
+function syncInputMode() {
+    const touch = TOUCH_QUERY.matches || navigator.maxTouchPoints > 0;
+    elements.game.dataset.input = touch ? 'touch' : 'keys';
+}
+TOUCH_QUERY.addEventListener('change', syncInputMode);
+window.addEventListener('resize', syncInputMode);
+syncInputMode();
+
+document.querySelectorAll('#touchControls .touch-btn').forEach((btn) => {
+    const key = btn.dataset.key;
+    const release = () => { btn.classList.remove('pressed'); if (key) GAME.keys[key] = false; };
+    btn.addEventListener('pointerdown', (e) => {
+        e.preventDefault(); e.stopPropagation();
+        btn.setPointerCapture?.(e.pointerId);
+        btn.classList.add('pressed');
+        if (GAME.mode === 'platform' && !GAME.paused) dismissHint();
+        if (key) { if (GAME.mode === 'platform') GAME.keys[key] = true; }
+        else if (btn.dataset.action === 'jump') jump();
+        else if (btn.dataset.action === 'attack') attack();
+    });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach((ev) => btn.addEventListener(ev, release));
+    btn.addEventListener('contextmenu', (e) => e.preventDefault());
+});
 
 elements.stage.addEventListener('pointerdown', (e) => { if (e.target.closest('button')) return; if (GAME.mode === 'platform') dismissHint(); if (GAME.mode === 'combat') attack(); else jump(); });
 elements.pauseBtn.addEventListener('click', togglePause);
