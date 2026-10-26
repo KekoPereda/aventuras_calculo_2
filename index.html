@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Aventuras del Cálculo</title>
   <link rel="stylesheet" href="assets/css/estilos.css">
 </head>
+
 <body>
   <main id="game" data-stage="prairie" data-mode="platform">
     <section class="game-stage" id="stage" aria-label="Escenario del juego">
@@ -28,7 +30,7 @@
       </header>
 
       <div class="card card-player">
-        <strong>Héroe</strong>
+        <strong>Kekosas</strong>
         <div class="hp"><i id="playerHp"></i></div>
       </div>
       <div class="card card-enemy" id="enemyCard" hidden>
@@ -37,12 +39,16 @@
       </div>
 
       <div class="track" id="track"></div>
-      <iframe id="player" class="character player" src="assets/caracter/player/player.html" title="Jugador" scrolling="no"></iframe>
-      <iframe id="enemy" class="character enemy" src="assets/caracter/enemys/enemy_1.html" title="Jefe enemigo" scrolling="no" hidden></iframe>
+      <iframe id="player" class="character player" src="assets/caracter/player/player.html" title="Jugador"
+        scrolling="no"></iframe>
+      <iframe id="enemy" class="character enemy" src="assets/caracter/enemys/enemy_1.html" title="Jefe enemigo"
+        scrolling="no" hidden></iframe>
 
       <p class="platform-hint" id="platformHint">
-        <span class="hint-keys"><kbd>A</kbd> atrás · <kbd>D</kbd> adelante · <kbd>W</kbd> saltar · <kbd>S</kbd> agacharse · <kbd>Ctrl</kbd> golpear — salta sobre los minis</span>
-        <span class="hint-touch">Usa <b>◀ ▶</b> para moverte, <b>▼</b> para agacharte, <b>⤒</b> para saltar y <b>✊</b> para golpear — salta sobre los minis</span>
+        <span class="hint-keys"><kbd>A</kbd> atrás · <kbd>D</kbd> adelante · <kbd>W</kbd> saltar · <kbd>S</kbd>
+          agacharse · <kbd>Ctrl</kbd> golpear — salta sobre los minis</span>
+        <span class="hint-touch">Usa <b>◀ ▶</b> para moverte, <b>▼</b> para agacharte, <b>⤒</b> para saltar y <b>✊</b>
+          para golpear — salta sobre los minis</span>
       </p>
 
       <!-- Controles táctiles: solo visibles en pantallas táctiles / móviles -->
@@ -85,4 +91,5 @@
   </main>
   <script src="assets/js/app.js"></script>
 </body>
+
 </html>
